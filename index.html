@@ -312,6 +312,66 @@
                 opacity: 0;
             }
         }
+
+        /* Add mobile-specific adjustments */
+        @media (max-width: 768px) {
+            .heart {
+                position: fixed;  /* Reinforce fixed positioning */
+                z-index: 1001;   /* Ensure z-index is maintained */
+            }
+        }
+
+        /* Add this media query for mobile devices */
+        @media (max-width: 768px) {
+            .puzzle-container {
+                flex-direction: column;
+                gap: 20px;
+                align-items: center;
+            }
+
+            .puzzle-area {
+                width: 100%;
+                align-items: center;
+            }
+
+            .grid {
+                /* Adjust grid size for mobile */
+                grid-template-columns: repeat(5, minmax(40px, 60px));
+            }
+
+            .cell {
+                width: auto;
+                aspect-ratio: 1;
+            }
+
+            .clues {
+                max-width: 100%;
+                padding: 0 10px;
+            }
+
+            /* Adjust toolbar for mobile */
+            .toolbar {
+                flex-direction: column;
+                gap: 10px;
+                align-items: center;
+            }
+
+            .toolbar-buttons {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            /* Adjust header for mobile */
+            .header h1 {
+                font-size: 24px;
+            }
+
+            /* Adjust body padding for mobile */
+            body {
+                padding: 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -868,8 +928,79 @@
             }
         };
 
-        // Add event listener as an alternative to onclick
-        document.querySelector('.share-button').addEventListener('click', rainHearts);
+        // Update initializeToolbarButtons to include victory modal buttons
+        function initializeToolbarButtons() {
+            // Clear button
+            document.querySelector('.toolbar-button:nth-child(1)').addEventListener('click', () => {
+                if (confirm('Are you sure you want to clear the entire puzzle?')) {
+                    document.querySelectorAll('input').forEach(input => {
+                        input.value = '';
+                    });
+                }
+            });
+
+            // Reveal button
+            document.querySelector('.toolbar-button:nth-child(2)').addEventListener('click', () => {
+                if (confirm('Are you sure you want to reveal all answers?')) {
+                    const solution = {
+                        '0,0': 'C', '0,1': 'A', '0,2': 'N', '0,3': 'E', '0,4': 'S',
+                        '1,0': 'O', '1,2': 'I', '1,4': 'E',
+                        '2,0': 'R', '2,2': 'N', '2,4': 'I',
+                        '3,0': 'E', '3,2': 'J', '3,3': 'A', '3,4': 'N',
+                        '4,1': 'L', '4,2': 'A', '4,3': 'T', '4,4': 'E'
+                    };
+
+                    for (const [coords, letter] of Object.entries(solution)) {
+                        const [row, col] = coords.split(',');
+                        const input = document.querySelector(`input[data-row="${row}"][data-col="${col}"]`);
+                        if (input) {
+                            input.value = letter;
+                        }
+                    }
+                }
+            });
+
+            // Check button
+            document.querySelector('.toolbar-button:nth-child(3)').addEventListener('click', () => {
+                // Remove any existing broken hearts
+                document.querySelectorAll('.broken-heart').forEach(heart => heart.remove());
+
+                const solution = {
+                    '0,0': 'C', '0,1': 'A', '0,2': 'N', '0,3': 'E', '0,4': 'S',
+                    '1,0': 'O', '1,2': 'I', '1,4': 'E',
+                    '2,0': 'R', '2,2': 'N', '2,4': 'I',
+                    '3,0': 'E', '3,2': 'J', '3,3': 'A', '3,4': 'N',
+                    '4,1': 'L', '4,2': 'A', '4,3': 'T', '4,4': 'E'
+                };
+
+                for (const [coords, letter] of Object.entries(solution)) {
+                    const [row, col] = coords.split(',');
+                    const input = document.querySelector(`input[data-row="${row}"][data-col="${col}"]`);
+                    if (input && input.value && input.value.toUpperCase() !== letter) {
+                        const cell = input.parentElement;
+                        const brokenHeart = document.createElement('div');
+                        brokenHeart.className = 'broken-heart';
+                        brokenHeart.textContent = '💔';
+                        brokenHeart.style.position = 'absolute';
+                        brokenHeart.style.top = '2px';
+                        brokenHeart.style.right = '2px';
+                        brokenHeart.style.fontSize = '12px';
+                        brokenHeart.style.pointerEvents = 'none';
+                        cell.appendChild(brokenHeart);
+                    }
+                }
+            });
+
+            // Add click handlers for all share buttons
+            document.querySelectorAll('.share-button').forEach(button => {
+                if (button.textContent.includes('hearts')) {
+                    button.addEventListener('click', rainHearts);
+                }
+            });
+        }
+
+        // Call this after the grid is created
+        initializeToolbarButtons();
 
         // Add this function to get the next clue number and direction
         function getNextClue(currentNumber, currentDirection) {
@@ -996,73 +1127,6 @@
 
             // ... existing input handlers ...
         });
-
-        // Add these functions after the existing puzzle initialization code
-        function initializeToolbarButtons() {
-            // Clear button
-            document.querySelector('.toolbar-button:nth-child(1)').addEventListener('click', () => {
-                if (confirm('Are you sure you want to clear the entire puzzle?')) {
-                    document.querySelectorAll('input').forEach(input => {
-                        input.value = '';
-                    });
-                }
-            });
-
-            // Reveal button
-            document.querySelector('.toolbar-button:nth-child(2)').addEventListener('click', () => {
-                if (confirm('Are you sure you want to reveal all answers?')) {
-                    const solution = {
-                        '0,0': 'C', '0,1': 'A', '0,2': 'N', '0,3': 'E', '0,4': 'S',
-                        '1,0': 'O', '1,2': 'I', '1,4': 'E',
-                        '2,0': 'R', '2,2': 'N', '2,4': 'I',
-                        '3,0': 'E', '3,2': 'J', '3,3': 'A', '3,4': 'N',
-                        '4,1': 'L', '4,2': 'A', '4,3': 'T', '4,4': 'E'
-                    };
-
-                    for (const [coords, letter] of Object.entries(solution)) {
-                        const [row, col] = coords.split(',');
-                        const input = document.querySelector(`input[data-row="${row}"][data-col="${col}"]`);
-                        if (input) {
-                            input.value = letter;
-                        }
-                    }
-                }
-            });
-
-            // Check button
-            document.querySelector('.toolbar-button:nth-child(3)').addEventListener('click', () => {
-                // Remove any existing broken hearts
-                document.querySelectorAll('.broken-heart').forEach(heart => heart.remove());
-
-                const solution = {
-                    '0,0': 'C', '0,1': 'A', '0,2': 'N', '0,3': 'E', '0,4': 'S',
-                    '1,0': 'O', '1,2': 'I', '1,4': 'E',
-                    '2,0': 'R', '2,2': 'N', '2,4': 'I',
-                    '3,0': 'E', '3,2': 'J', '3,3': 'A', '3,4': 'N',
-                    '4,1': 'L', '4,2': 'A', '4,3': 'T', '4,4': 'E'
-                };
-
-                for (const [coords, letter] of Object.entries(solution)) {
-                    const [row, col] = coords.split(',');
-                    const input = document.querySelector(`input[data-row="${row}"][data-col="${col}"]`);
-                    if (input && input.value && input.value.toUpperCase() !== letter) {
-                        const cell = input.parentElement;
-                        const brokenHeart = document.createElement('div');
-                        brokenHeart.className = 'broken-heart';
-                        brokenHeart.textContent = '💔';
-                        brokenHeart.style.position = 'absolute';
-                        brokenHeart.style.top = '2px';
-                        brokenHeart.style.right = '2px';
-                        brokenHeart.style.fontSize = '12px';
-                        brokenHeart.style.pointerEvents = 'none';
-                        cell.appendChild(brokenHeart);
-                    }
-                }
-            });
-        }
-
-        // Call this after the grid is created
-        initializeToolbarButtons();
     </script>
 </body>
 </html> 

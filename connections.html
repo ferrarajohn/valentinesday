@@ -279,6 +279,53 @@
             color: #000;
             font-size: 14px;
         }
+
+        /* Add mobile-specific styles */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                margin-bottom: 20px;
+            }
+
+            .title {
+                font-size: 28px;
+            }
+
+            .title h5 {
+                margin: 0;
+            }
+
+            .grid {
+                gap: 6px;
+                margin: 0 5px 20px;  /* Changed from -10px to 5px to add spacing on sides */
+            }
+
+            .tile {
+                padding: 15px 5px;
+                font-size: 13px;
+            }
+
+            .buttons {
+                gap: 8px;
+            }
+
+            button {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+
+            .mistake-dots {
+                gap: 8px;
+            }
+
+            .dot {
+                width: 12px;
+                height: 12px;
+            }
+        }
     </style>
 </head>
 <body>

@@ -238,6 +238,25 @@
             font-size: 14px;
             border-radius: 20px;
         }
+
+        @media (max-width: 600px) {
+            .key {
+                padding: 15px 12px;
+                font-size: 0.9rem;
+            }
+
+            .key.wide {
+                padding: 15px 20px;
+            }
+
+            .keyboard {
+                padding: 0 5px;
+            }
+
+            .keyboard-row {
+                gap: 3px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -461,7 +480,7 @@
         function rainPhotos() {
             const duration = 3000;
             const photoCount = 30;
-            const photos = Array.from({length: 15}, (_, i) => `/valentinesday/photos/${i + 1}.JPG`).slice(1);
+            const photos = Array.from({length: 15}, (_, i) => `photos/${i + 1}.jpg`).slice(1);
             const randomPhoto = photos[Math.floor(Math.random() * photos.length)];
             
             for (let i = 0; i < photoCount; i++) {
