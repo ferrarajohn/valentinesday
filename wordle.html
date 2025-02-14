@@ -461,7 +461,7 @@
         function rainPhotos() {
             const duration = 3000;
             const photoCount = 30;
-            const photos = Array.from({length: 15}, (_, i) => `photos/${i + 1}.jpg`).slice(1);
+            const photos = Array.from({length: 15}, (_, i) => `/photos/${i + 1}.jpg`).slice(1);
             const randomPhoto = photos[Math.floor(Math.random() * photos.length)];
             
             for (let i = 0; i < photoCount; i++) {
