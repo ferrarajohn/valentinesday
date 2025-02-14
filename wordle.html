@@ -480,13 +480,22 @@
         function rainPhotos() {
             const duration = 3000;
             const photoCount = 30;
-            const photos = Array.from({length: 15}, (_, i) => `/valentinesday/photos/${i + 1}.JPG`).slice(1);
+            const photos = ["/valentinesday/photos/1.jpg", "/valentinesday/photos/2.jpeg", "/valentinesday/photos/3.jpeg", "/valentinesday/photos/4.jpg", "/valentinesday/photos/5.jpg", "/valentinesday/photos/6.jpg", "/valentinesday/photos/7.jpg", "/valentinesday/photos/8.jpg", "/valentinesday/photos/9.jpg", "/valentinesday/photos/10.jpg", "/valentinesday/photos/11.jpg", "/valentinesday/photos/12.jpg", "/valentinesday/photos/13.jpg", "/valentinesday/photos/14.jpg", "/valentinesday/photos/15.jpg"];
             const randomPhoto = photos[Math.floor(Math.random() * photos.length)];
+            
+            console.log('Attempting to load photo:', randomPhoto);
             
             for (let i = 0; i < photoCount; i++) {
                 const photo = document.createElement('img');
                 photo.className = 'falling-photo';
                 photo.src = randomPhoto;
+                
+                photo.onerror = () => {
+                    console.error('Failed to load image:', randomPhoto);
+                };
+                photo.onload = () => {
+                    console.log('Successfully loaded image:', randomPhoto);
+                };
                 
                 photo.style.left = Math.random() * 100 + 'vw';
                 
