@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>John's Valentine's Day Mini</title>
+    <link rel="icon" href="heart.png" type="image/png">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+        }
+
+        .header {
+            border-bottom: 1px solid #e6e6e6;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .header-date {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e6e6e6;
+            margin-bottom: 20px;
+        }
+
+        .timer {
+            font-size: 20px;
+            font-weight: normal;
+        }
+
+        .toolbar-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .toolbar-button {
+            padding: 8px 12px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: #000;
+            font-size: 14px;
+        }
+
+        .puzzle-container {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .puzzle-area {
+            display: flex;
+            flex-direction: column;
+            width: fit-content;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5, 60px);
+            gap: 1px;
+            background-color: black;
+            padding: 1px;
+            border: 2px solid black;
+            width: fit-content;
+        }
+
+        .cell {
+            width: 60px;
+            height: 60px;
+            background-color: white;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .cell.black {
+            background-color: black;
+        }
+
+        .cell.selected {
+            background-color: #ffda00;
+        }
+
+        .number {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            font-size: 12px;
+            color: #000;
+        }
+
+        .clues {
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .clue-section {
+            margin-bottom: 30px;
+        }
+
+        .clue-section h3 {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #000;
+        }
+
+        .clue {
+            padding: 8px 16px;
+            margin: 2px 0;
+            cursor: pointer;
+            border-radius: 3px;
+            display: flex;
+        }
+
+        .clue.active {
+            background-color: #d7e9f7;
+        }
+
+        .clue-number {
+            font-weight: bold;
+            margin-right: 8px;
+            min-width: 24px;
+        }
+
+        .clue-text {
+            flex: 1;
+        }
+
+        input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            text-align: center;
+            font-size: 24px;
+            text-transform: uppercase;
+            background: transparent;
+        }
+
+        input:focus {
+            outline: none;
+        }
+
+        .cell.related {
+            background-color: #d7e9f7;
+        }
+
+        .clue.active {
+            background-color: #d7e9f7;
+        }
+
+        .cell.related input,
+        .cell.selected input {
+            background: transparent;
+        }
+
+        .active-clue-banner {
+            background-color: #d7e9f7;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border-radius: 3px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .active-clue-banner.hidden {
+            display: none;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.98);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .modal-content {
+            text-align: center;
+            max-width: 500px;
+            padding: 20px;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .modal-overlay.visible {
+            opacity: 1;
+        }
+
+        .modal-overlay.visible .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .star-icon {
+            width: 60px;
+            height: 60px;
+            background-color: #4c6ff5;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .star-icon svg {
+            width: 32px;
+            height: 32px;
+            fill: white;
+        }
+
+        .modal-title {
+            font-size: 44px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .modal-subtitle {
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+
+        .share-button {
+            background: #000;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 24px;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 30px;
+        }
+
+        .archive-link, .spelling-bee-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #000;
+            margin: 10px 0;
+        }
+
+        .archive-link {
+            background-color: #d7e9f7;
+        }
+
+        .spelling-bee-link {
+            background-color: #f7da21;
+        }
+
+        .heart {
+            position: fixed;
+            font-size: 20px;
+            color: #ff69b4;
+            user-select: none;
+            pointer-events: none;
+            animation: fall linear forwards;
+            z-index: 1001;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-10vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 style="color: #c9529d;">John's Valentine's Day Mini</h1>
+        <div style="color: #c9529d;" class="header-date">Friday, February 14, 2025</div>
+    </div>
+
+    <div class="toolbar">
+        <div class="timer">0:03</div>
+        <div class="toolbar-buttons">
+            <button class="toolbar-button">Clear</button>
+            <button class="toolbar-button">Reveal</button>
+            <button class="toolbar-button">Check</button>
+            <button class="toolbar-button" onclick="window.location.href='connections.html'" style="background-color: #c9529d; color: white; border-radius: 20px;">Skip to Connections</button>
+        </div>
+    </div>
+
+    <div class="puzzle-container">
+        <div class="puzzle-area">
+            <div id="active-clue-banner" class="active-clue-banner hidden"></div>
+            <div class="grid" id="crossword"></div>
+        </div>
+
+        <div class="clues">
+            <div class="clue-section">
+                <h3>ACROSS</h3>
+                <div id="across-clues"></div>
+            </div>
+            <div class="clue-section">
+                <h3>DOWN</h3>
+                <div id="down-clues"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add modal HTML -->
+    <div class="modal-overlay" id="victory-modal">
+        <div class="modal-close">Back to puzzle ✕</div>
+        <div class="modal-content">
+            <div class="start-icon">
+                <img src="heart.png" alt="Heart Icon" style="width: 50px; height: 50px;">
+            </div>
+            <h1 class="modal-title" style="color: #c9529d;">Congratulations!</h1>
+            <p class="modal-subtitle" style="color: #c9529d;">You solved <strong>John's Valentine's Day Mini</strong><br>in <span id="final-time">0:00</span>.</p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button class="share-button" onclick="rainHearts()" style="background-color: white; border: 2px solid pink; color: pink;">Click for hearts!</button>
+                <button class="share-button" onclick="window.location.href='connections.html'" style="background-color: white; border: 2px solid #000; color: #000;">Next Game</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Customize your puzzle here
+        const puzzle = {
+            grid: [
+                ['C', 'A', 'N', 'E', 'S'],
+                ['O', '*', 'I', '*', 'E'],
+                ['R', '*', 'N', '*', 'I'],
+                ['E', '*', 'J', 'A', 'N'],
+                ['*', 'L', 'A', 'T', 'E']
+            ],
+            clues: {
+                across: {
+                    1: "Home of the box combo (and us)",
+                    4: "Our anniversary month",
+                    6: "Something we often make each other (caused by too much yapping)"
+                },
+                down: {
+                    1: "You either walk away from this with abs or a soulmate",
+                    2: "We might see one if we went to Japan together one day",
+                    3: "A river featured in a new favorite city of ours",
+                    5: "_ _ X...abbr. for a certain hometown "
+                }
+            }
+        };
+
+        let timer;
+        let seconds = 0;
+
+        function startTimer() {
+            timer = setInterval(() => {
+                seconds++;
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+                document.querySelector('.timer').textContent = 
+                    `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function createGrid() {
+            const grid = document.getElementById('crossword');
+            let cellNumber = 1;
+
+            for (let i = 0; i < 5; i++) {
+                for (let j = 0; j < 5; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    
+                    if (puzzle.grid[i][j] === '*') {
+                        cell.classList.add('black');
+                    } else {
+                        const input = document.createElement('input');
+                        input.maxLength = 1;
+                        input.dataset.row = i;
+                        input.dataset.col = j;
+                        cell.appendChild(input);
+
+                        // Add cell numbers (you'll need to customize these)
+                        if (shouldNumberCell(i, j)) {
+                            const number = document.createElement('div');
+                            number.className = 'number';
+                            number.textContent = cellNumber++;
+                            cell.appendChild(number);
+                        }
+                    }
+                    
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        function shouldNumberCell(row, col) {
+            // 1. Top right [0,4]
+            // 2. Fourth row, third square [3,2]
+            // 3. Fifth row, second square [4,1]
+            // 4. Top row, third square [0,2]
+            // 5. Fourth row, fourth square [3,3]
+            // 6. Top row, far left [0,0]
+            
+            if (row === 0 && col === 4) return true;  // 1
+            if (row === 3 && col === 2) return true;  // 2
+            if (row === 4 && col === 1) return true;  // 3
+            if (row === 0 && col === 2) return true;  // 4
+            if (row === 3 && col === 3) return true;  // 5
+            if (row === 0 && col === 0) return true;  // 6
+            return false;
+        }
+
+        function displayClues() {
+            const acrossClues = document.getElementById('across-clues');
+            const downClues = document.getElementById('down-clues');
+
+            for (const [number, clueText] of Object.entries(puzzle.clues.across)) {
+                const clue = document.createElement('div');
+                clue.className = 'clue';
+                clue.dataset.number = number;
+                clue.dataset.direction = 'across';
+                
+                const numberSpan = document.createElement('span');
+                numberSpan.className = 'clue-number';
+                numberSpan.textContent = number;
+                
+                const textSpan = document.createElement('span');
+                textSpan.className = 'clue-text';
+                textSpan.textContent = clueText;
+                
+                clue.appendChild(numberSpan);
+                clue.appendChild(textSpan);
+                acrossClues.appendChild(clue);
+            }
+
+            // Repeat for down clues
+            for (const [number, clueText] of Object.entries(puzzle.clues.down)) {
+                const clue = document.createElement('div');
+                clue.className = 'clue';
+                clue.dataset.number = number;
+                clue.dataset.direction = 'down';
+                
+                const numberSpan = document.createElement('span');
+                numberSpan.className = 'clue-number';
+                numberSpan.textContent = number;
+                
+                const textSpan = document.createElement('span');
+                textSpan.className = 'clue-text';
+                textSpan.textContent = clueText;
+                
+                clue.appendChild(numberSpan);
+                clue.appendChild(textSpan);
+                downClues.appendChild(clue);
+            }
+        }
+
+        // Initialize the puzzle
+        createGrid();
+        displayClues();
+        startTimer();
+
+        // Add keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT') {
+                const currentRow = parseInt(e.target.dataset.row);
+                const currentCol = parseInt(e.target.dataset.col);
+
+                if (e.key === 'ArrowRight') {
+                    const nextCell = document.querySelector(
+                        `input[data-row="${currentRow}"][data-col="${currentCol + 1}"]`
+                    );
+                    if (nextCell) nextCell.focus();
+                }
+                // Add similar handling for other arrow keys
+            }
+        });
+
+        function getRelatedCells(input) {
+            const currentCell = input.parentElement;
+            const row = parseInt(input.dataset.row);
+            const col = parseInt(input.dataset.col);
+            const relatedCells = [];
+            
+            // Find if this is part of an across word
+            let acrossNum = null;
+            let downNum = null;
+            
+            // Check all numbered cells to find which word(s) this cell belongs to
+            document.querySelectorAll('.number').forEach(num => {
+                const numCell = num.parentElement;
+                const numRow = parseInt(numCell.querySelector('input')?.dataset.row);
+                const numCol = parseInt(numCell.querySelector('input')?.dataset.col);
+                
+                // Check if this cell is part of an across word
+                if (numRow === row) {
+                    let c = numCol;
+                    while (c < 5 && document.querySelector(`input[data-row="${row}"][data-col="${c}"]`)) {
+                        if (c === col) {
+                            acrossNum = num.textContent;
+                            break;
+                        }
+                        c++;
+                    }
+                }
+                
+                // Check if this cell is part of a down word
+                if (numCol === col) {
+                    let r = numRow;
+                    while (r < 5 && document.querySelector(`input[data-row="${r}"][data-col="${col}"]`)) {
+                        if (r === row) {
+                            downNum = num.textContent;
+                            break;
+                        }
+                        r++;
+                    }
+                }
+            });
+            
+            return { acrossNum, downNum };
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('input');
+            let currentDirection = 'across';
+            
+            function highlightWord(input, direction) {
+                // Clear all highlights first
+                document.querySelectorAll('.cell').forEach(cell => 
+                    cell.classList.remove('selected', 'related'));
+                document.querySelectorAll('.clue').forEach(clue => 
+                    clue.classList.remove('active'));
+                
+                const { acrossNum, downNum } = getRelatedCells(input);
+                const activeNum = direction === 'across' ? acrossNum : downNum;
+                
+                // Highlight the active clue
+                if (activeNum) {
+                    const clue = document.querySelector(`.clue[data-number="${activeNum}"][data-direction="${direction}"]`);
+                    if (clue) {
+                        clue.classList.add('active');
+                        
+                        // Update the banner
+                        const banner = document.getElementById('active-clue-banner');
+                        banner.textContent = `${activeNum}${direction.toUpperCase().charAt(0)}. ${clue.querySelector('.clue-text').textContent}`;
+                        banner.classList.remove('hidden');
+                    }
+                }
+                
+                // Highlight the selected cell
+                input.parentElement.classList.add('selected');
+                
+                // Highlight related cells
+                const row = parseInt(input.dataset.row);
+                const col = parseInt(input.dataset.col);
+                
+                if (direction === 'across') {
+                    // Find start of word
+                    let c = col;
+                    while (c >= 0 && document.querySelector(`input[data-row="${row}"][data-col="${c}"]`)) {
+                        c--;
+                    }
+                    c++;
+                    
+                    // Highlight word
+                    while (c < 5 && document.querySelector(`input[data-row="${row}"][data-col="${c}"]`)) {
+                        const cell = document.querySelector(`input[data-row="${row}"][data-col="${c}"]`)
+                            ?.parentElement;
+                        if (cell && !cell.contains(input)) {
+                            cell.classList.add('related');
+                        }
+                        c++;
+                    }
+                } else {
+                    // Find start of word
+                    let r = row;
+                    while (r >= 0 && document.querySelector(`input[data-row="${r}"][data-col="${col}"]`)) {
+                        r--;
+                    }
+                    r++;
+                    
+                    // Highlight word
+                    while (r < 5 && document.querySelector(`input[data-row="${r}"][data-col="${col}"]`)) {
+                        const cell = document.querySelector(`input[data-row="${r}"][data-col="${col}"]`)
+                            ?.parentElement;
+                        if (cell && !cell.contains(input)) {
+                            cell.classList.add('related');
+                        }
+                        r++;
+                    }
+                }
+            }
+
+            function getNextInput(currentInput) {
+                const row = parseInt(currentInput.dataset.row);
+                const col = parseInt(currentInput.dataset.col);
+                
+                if (currentDirection === 'across') {
+                    // Try to get next input in row
+                    const nextInput = document.querySelector(
+                        `input[data-row="${row}"][data-col="${col + 1}"]`
+                    );
+                    if (nextInput) return nextInput;
+                    
+                    // If at end of row, try to find next row's first input
+                    for (let r = row + 1; r < 5; r++) {
+                        for (let c = 0; c < 5; c++) {
+                            const input = document.querySelector(
+                                `input[data-row="${r}"][data-col="${c}"]`
+                            );
+                            if (input) return input;
+                        }
+                    }
+                } else {
+                    // Try to get next input in column
+                    const nextInput = document.querySelector(
+                        `input[data-row="${row + 1}"][data-col="${col}"]`
+                    );
+                    if (nextInput) return nextInput;
+                    
+                    // If at end of column, try to find next column's first input
+                    for (let c = col + 1; c < 5; c++) {
+                        for (let r = 0; r < 5; r++) {
+                            const input = document.querySelector(
+                                `input[data-row="${r}"][data-col="${c}"]`
+                            );
+                            if (input) return input;
+                        }
+                    }
+                }
+                return null;
+            }
+
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    highlightWord(this, currentDirection);
+                });
+                
+                input.addEventListener('click', function() {
+                    if (this === document.activeElement) {
+                        currentDirection = currentDirection === 'across' ? 'down' : 'across';
+                        highlightWord(this, currentDirection);
+                    }
+                });
+
+                input.addEventListener('input', function(e) {
+                    // Convert input to uppercase
+                    this.value = this.value.toUpperCase();
+                    
+                    if (this.value.length === 1) {
+                        // Always get next input in current direction
+                        const nextInput = getNextInput(this);
+                        
+                        // Check if current word is complete
+                        if (isWordComplete(this, currentDirection)) {
+                            // Get next clue
+                            const { acrossNum, downNum } = getRelatedCells(this);
+                            const currentNum = currentDirection === 'across' ? acrossNum : downNum;
+                            const nextClue = getNextClue(parseInt(currentNum), currentDirection);
+                            
+                            if (nextClue) {
+                                // If there's no next input in current word, move to next clue
+                                if (!nextInput) {
+                                    const nextClueCell = document.querySelector(`input[data-${nextClue.direction}-clue="${nextClue.number}"]`);
+                                    if (nextClueCell) {
+                                        setTimeout(() => {
+                                            nextClueCell.focus();
+                                            currentDirection = nextClue.direction;
+                                            highlightWord(nextClueCell, nextClue.direction);
+                                        }, 10);
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Always move to next input if available
+                        if (nextInput) {
+                            nextInput.focus();
+                            nextInput.select();
+                        }
+                        
+                        // Check for victory
+                        checkVictory();
+                    }
+                });
+
+                // Handle backspace
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && this.value === '') {
+                        e.preventDefault();
+                        // Get previous input based on current direction
+                        const row = parseInt(this.dataset.row);
+                        const col = parseInt(this.dataset.col);
+                        
+                        let prevInput;
+                        if (currentDirection === 'across') {
+                            prevInput = document.querySelector(
+                                `input[data-row="${row}"][data-col="${col - 1}"]`
+                            );
+                        } else {
+                            prevInput = document.querySelector(
+                                `input[data-row="${row - 1}"][data-col="${col}"]`
+                            );
+                        }
+                        
+                        if (prevInput) {
+                            prevInput.focus();
+                            prevInput.select();
+                        }
+                    }
+                });
+            });
+
+            // Add this at the end of the DOMContentLoaded event handler
+            // to select 1-across on page load
+            function selectInitialCell() {
+                // Find the first input cell (1-across)
+                const firstCell = document.querySelector('input[data-row="0"][data-col="0"]');
+                if (firstCell) {
+                    firstCell.focus();
+                    currentDirection = 'across';
+                    highlightWord(firstCell, 'across');
+                }
+            }
+
+            // Call it after the grid is created
+            setTimeout(selectInitialCell, 0);
+        });
+
+        // Add click handlers for clues
+        document.querySelectorAll('.clue').forEach(clue => {
+            clue.addEventListener('click', function() {
+                const direction = this.dataset.direction;
+                const number = this.dataset.number;
+                currentDirection = direction;
+                
+                // Find the first cell of this clue
+                const firstCell = document.querySelector(`input[data-clue-${direction}="${number}"]`);
+                if (firstCell) {
+                    firstCell.focus();
+                    highlightWord(firstCell, direction);
+                }
+            });
+        });
+
+        // Add victory check function
+        function checkVictory() {
+            const solution = {
+                '0,0': 'C', '0,1': 'A', '0,2': 'N', '0,3': 'E', '0,4': 'S',
+                '1,0': 'O', '1,2': 'I', '1,4': 'E',
+                '2,0': 'R', '2,2': 'N', '2,4': 'I',
+                '3,0': 'E', '3,2': 'J', '3,3': 'A', '3,4': 'N',
+                '4,1': 'L', '4,2': 'A', '4,3': 'T', '4,4': 'E'
+            };
+
+            // First check if all required cells are filled
+            for (const [coords, letter] of Object.entries(solution)) {
+                const [row, col] = coords.split(',');
+                const input = document.querySelector(`input[data-row="${row}"][data-col="${col}"]`);
+                if (!input || !input.value) {
+                    return false; // Puzzle not complete
+                }
+            }
+
+            // Then check if all filled cells are correct
+            let isComplete = true;
+            for (const [coords, letter] of Object.entries(solution)) {
+                const [row, col] = coords.split(',');
+                const input = document.querySelector(`input[data-row="${row}"][data-col="${col}"]`);
+                if (!input || input.value.toUpperCase() !== letter) {
+                    isComplete = false;
+                    break;
+                }
+            }
+
+            if (isComplete) {
+                const modal = document.getElementById('victory-modal');
+                const finalTime = document.getElementById('final-time');
+                finalTime.textContent = document.querySelector('.timer').textContent;
+                
+                // Show modal with animation
+                modal.style.display = 'flex';
+                // Trigger reflow
+                modal.offsetHeight;
+                // Add visible class to start animation
+                modal.classList.add('visible');
+                
+                // Stop the timer
+                clearInterval(timer);
+            }
+        }
+
+        // Update modal close handler
+        document.querySelector('.modal-close').addEventListener('click', () => {
+            const modal = document.getElementById('victory-modal');
+            modal.classList.remove('visible');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300); // Match transition duration
+        });
+
+        // Make sure rainHearts is defined in the global scope
+        window.rainHearts = function() {
+            const duration = 3000;
+            const heartCount = 50;
+            
+            for (let i = 0; i < heartCount; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.textContent = '♥';
+                
+                heart.style.left = Math.random() * 100 + 'vw';
+                
+                const size = Math.random() * 20 + 10;
+                heart.style.fontSize = size + 'px';
+                
+                const animationDuration = (Math.random() * 2 + 1) * 1000;
+                heart.style.animationDuration = animationDuration + 'ms';
+                
+                const rotation = Math.random() * 360;
+                heart.style.transform = `rotate(${rotation}deg)`;
+                
+                document.body.appendChild(heart);
+                
+                setTimeout(() => {
+                    heart.remove();
+                }, animationDuration);
+            }
+        };
+
+        // Add event listener as an alternative to onclick
+        document.querySelector('.share-button').addEventListener('click', rainHearts);
+
+        // Add this function to get the next clue number and direction
+        function getNextClue(currentNumber, currentDirection) {
+            const acrossClues = Object.keys(puzzle.clues.across).map(Number);
+            const downClues = Object.keys(puzzle.clues.down).map(Number);
+            
+            if (currentDirection === 'across') {
+                const nextAcrossIndex = acrossClues.indexOf(currentNumber) + 1;
+                if (nextAcrossIndex < acrossClues.length) {
+                    return { number: acrossClues[nextAcrossIndex], direction: 'across' };
+                }
+                if (downClues.length > 0) {
+                    return { number: downClues[0], direction: 'down' };
+                }
+            } else {
+                const nextDownIndex = downClues.indexOf(currentNumber) + 1;
+                if (nextDownIndex < downClues.length) {
+                    return { number: downClues[nextDownIndex], direction: 'down' };
+                }
+                if (acrossClues.length > 0) {
+                    return { number: acrossClues[0], direction: 'across' };
+                }
+            }
+            return null;
+        }
+
+        // Add this function to check if current word is complete
+        function isWordComplete(input, direction) {
+            const { acrossNum, downNum } = getRelatedCells(input);
+            const currentNum = direction === 'across' ? acrossNum : downNum;
+            
+            const cells = Array.from(document.querySelectorAll('input')).filter(cell => {
+                const cellAcrossNum = getRelatedCells(cell).acrossNum;
+                const cellDownNum = getRelatedCells(cell).downNum;
+                return direction === 'across' ? 
+                    cellAcrossNum === currentNum : 
+                    cellDownNum === currentNum;
+            });
+
+            return cells.every(cell => cell.value.length === 1);
+        }
+
+        // Add this function to handle tab navigation
+        function handleTab(input, isShiftTab) {
+            const currentCell = input;
+            const row = parseInt(currentCell.dataset.row);
+            const col = parseInt(currentCell.dataset.col);
+            let nextCell;
+
+            if (currentDirection === 'across') {
+                if (!isShiftTab) {
+                    // Try next cell in row
+                    nextCell = document.querySelector(`input[data-row="${row}"][data-col="${col + 1}"]`);
+                    if (!nextCell) {
+                        // If at end of row, get first cell of next clue
+                        const { acrossNum } = getRelatedCells(currentCell);
+                        const nextClue = getNextClue(parseInt(acrossNum), 'across');
+                        if (nextClue) {
+                            nextCell = document.querySelector(`input[data-${nextClue.direction}-clue="${nextClue.number}"]`);
+                            if (nextCell) currentDirection = nextClue.direction;
+                        }
+                    }
+                } else {
+                    // Try previous cell in row
+                    nextCell = document.querySelector(`input[data-row="${row}"][data-col="${col - 1}"]`);
+                    if (!nextCell) {
+                        // If at start of row, get last cell of previous clue
+                        const { acrossNum } = getRelatedCells(currentCell);
+                        // Need to implement getPreviousClue similar to getNextClue
+                        // For now, just wrap to last available cell
+                        const allInputs = Array.from(document.querySelectorAll('input'));
+                        nextCell = allInputs[allInputs.length - 1];
+                    }
+                }
+            } else { // down direction
+                if (!isShiftTab) {
+                    // Try next cell in column
+                    nextCell = document.querySelector(`input[data-row="${row + 1}"][data-col="${col}"]`);
+                    if (!nextCell) {
+                        // If at end of column, get first cell of next clue
+                        const { downNum } = getRelatedCells(currentCell);
+                        const nextClue = getNextClue(parseInt(downNum), 'down');
+                        if (nextClue) {
+                            nextCell = document.querySelector(`input[data-${nextClue.direction}-clue="${nextClue.number}"]`);
+                            if (nextCell) currentDirection = nextClue.direction;
+                        }
+                    }
+                } else {
+                    // Try previous cell in column
+                    nextCell = document.querySelector(`input[data-row="${row - 1}"][data-col="${col}"]`);
+                    if (!nextCell) {
+                        // If at start of column, get last cell of previous clue
+                        const { downNum } = getRelatedCells(currentCell);
+                        // Need to implement getPreviousClue similar to getNextClue
+                        // For now, just wrap to first available cell
+                        nextCell = document.querySelector('input');
+                    }
+                }
+            }
+
+            if (nextCell) {
+                nextCell.focus();
+                nextCell.select();
+                highlightWord(nextCell, currentDirection);
+            }
+
+            return nextCell;
+        }
+
+        // Update input event listeners
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            // Add keydown event listener for tab
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Tab') {
+                    e.preventDefault(); // Prevent default tab behavior
+                    const nextCell = handleTab(this, e.shiftKey);
+                    if (nextCell) {
+                        e.preventDefault();
+                    }
+                }
+                // ... existing keydown handlers ...
+            });
+
+            // ... existing input handlers ...
+        });
+
+        // Add these functions after the existing puzzle initialization code
+        function initializeToolbarButtons() {
+            // Clear button
+            document.querySelector('.toolbar-button:nth-child(1)').addEventListener('click', () => {
+                if (confirm('Are you sure you want to clear the entire puzzle?')) {
+                    document.querySelectorAll('input').forEach(input => {
+                        input.value = '';
+                    });
+                }
+            });
+
+            // Reveal button
+            document.querySelector('.toolbar-button:nth-child(2)').addEventListener('click', () => {
+                if (confirm('Are you sure you want to reveal all answers?')) {
+                    const solution = {
+                        '0,0': 'C', '0,1': 'A', '0,2': 'N', '0,3': 'E', '0,4': 'S',
+                        '1,0': 'O', '1,2': 'I', '1,4': 'E',
+                        '2,0': 'R', '2,2': 'N', '2,4': 'I',
+                        '3,0': 'E', '3,2': 'J', '3,3': 'A', '3,4': 'N',
+                        '4,1': 'L', '4,2': 'A', '4,3': 'T', '4,4': 'E'
+                    };
+
+                    for (const [coords, letter] of Object.entries(solution)) {
+                        const [row, col] = coords.split(',');
+                        const input = document.querySelector(`input[data-row="${row}"][data-col="${col}"]`);
+                        if (input) {
+                            input.value = letter;
+                        }
+                    }
+                }
+            });
+
+            // Check button
+            document.querySelector('.toolbar-button:nth-child(3)').addEventListener('click', () => {
+                // Remove any existing broken hearts
+                document.querySelectorAll('.broken-heart').forEach(heart => heart.remove());
+
+                const solution = {
+                    '0,0': 'C', '0,1': 'A', '0,2': 'N', '0,3': 'E', '0,4': 'S',
+                    '1,0': 'O', '1,2': 'I', '1,4': 'E',
+                    '2,0': 'R', '2,2': 'N', '2,4': 'I',
+                    '3,0': 'E', '3,2': 'J', '3,3': 'A', '3,4': 'N',
+                    '4,1': 'L', '4,2': 'A', '4,3': 'T', '4,4': 'E'
+                };
+
+                for (const [coords, letter] of Object.entries(solution)) {
+                    const [row, col] = coords.split(',');
+                    const input = document.querySelector(`input[data-row="${row}"][data-col="${col}"]`);
+                    if (input && input.value && input.value.toUpperCase() !== letter) {
+                        const cell = input.parentElement;
+                        const brokenHeart = document.createElement('div');
+                        brokenHeart.className = 'broken-heart';
+                        brokenHeart.textContent = '💔';
+                        brokenHeart.style.position = 'absolute';
+                        brokenHeart.style.top = '2px';
+                        brokenHeart.style.right = '2px';
+                        brokenHeart.style.fontSize = '12px';
+                        brokenHeart.style.pointerEvents = 'none';
+                        cell.appendChild(brokenHeart);
+                    }
+                }
+            });
+        }
+
+        // Call this after the grid is created
+        initializeToolbarButtons();
+    </script>
+</body>
+</html> 
