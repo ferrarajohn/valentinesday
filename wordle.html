@@ -181,6 +181,17 @@
             z-index: 1001;
         }
 
+        .falling-photo {
+            position: fixed;
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            user-select: none;
+            pointer-events: none;
+            animation: fall linear forwards;
+            z-index: 1001;
+        }
+
         @keyframes fall {
             0% {
                 transform: translateY(-10vh) rotate(0deg);
@@ -289,6 +300,7 @@
             <div class="modal-subtitle">Thank you for being my Valentine😁😁</div>
             <div style="display: flex; gap: 10px; justify-content: center; flex-direction: column; align-items: center;">
                 <button class="share-button" onclick="rainHearts()">Click for hearts!</button>
+                <button class="share-button" onclick="rainPhotos()">Click for a surprise!</button>
             </div>
         </div>
     </div>
@@ -442,6 +454,37 @@
                 
                 setTimeout(() => {
                     heart.remove();
+                }, animationDuration);
+            }
+        }
+
+        function rainPhotos() {
+            const duration = 3000;
+            const photoCount = 30;
+            const photos = Array.from({length: 15}, (_, i) => `photos/${i + 1}.jpg`).slice(1);
+            const randomPhoto = photos[Math.floor(Math.random() * photos.length)];
+            
+            for (let i = 0; i < photoCount; i++) {
+                const photo = document.createElement('img');
+                photo.className = 'falling-photo';
+                photo.src = randomPhoto;
+                
+                photo.style.left = Math.random() * 100 + 'vw';
+                
+                const size = Math.random() * 50 + 100;
+                photo.style.width = size + 'px';
+                photo.style.height = size + 'px';
+                
+                const animationDuration = (Math.random() * 2 + 3) * 1000;
+                photo.style.animationDuration = animationDuration + 'ms';
+                
+                const rotation = Math.random() * 360;
+                photo.style.transform = `rotate(${rotation}deg)`;
+                
+                document.body.appendChild(photo);
+                
+                setTimeout(() => {
+                    photo.remove();
                 }, animationDuration);
             }
         }
